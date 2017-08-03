@@ -7,7 +7,7 @@ defmodule UA.Data do
   ]
 
   def preload do
-    data = File.stream!(Path.join([File.cwd!, "vendor", "uap-core", "regexes.yaml"]))
+    data = File.stream!(Path.join([File.cwd!, "vendor", "regexes.yaml"]))
     |> Enum.reduce([], &parse_line/2)
     |> Dict.delete(:namespace)
     |> Enum.map(&compile_regexps/1)

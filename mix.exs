@@ -41,7 +41,7 @@ defmodule UserAgentParser.Mixfile do
 
   defp package do
     [# These are the default files included in the package
-     files: ["lib", "config", "mix.exs", "README.md", "vendor/uap-core/regexes.yaml"],
+     files: ["lib", "config", "mix.exs", "README.md", "vendor/regexes.yaml"],
      maintainers: ["Roman Smirnov"],
      licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/romul/uap-elixir"}]
