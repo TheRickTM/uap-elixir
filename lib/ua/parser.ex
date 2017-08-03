@@ -54,22 +54,26 @@ defmodule UA.Parser do
 
   defp parse_browser(nil, _), do: :unknown
   defp parse_browser(parser, ua) do
-    family_repl = parser[:family_replacement]
-    v1_repl = parser[:v1_replacement]
-    v2_repl = parser[:v2_replacement]
-    version = [v1_repl, v2_repl] |> Enum.filter(&(&1 != nil)) |> version_from_parts
+    try do
+      family_repl = parser[:family_replacement]
+      v1_repl = parser[:v1_replacement]
+      v2_repl = parser[:v2_replacement]
+      version = [v1_repl, v2_repl] |> Enum.filter(&(&1 != nil)) |> version_from_parts
 
-    case Regex.run(parser[:regex], ua) do
-      [_, family | ver_parts] ->
-        %UA.Browser{
-          family: family_repl || family,
-          version: version || version_from_parts(ver_parts)
-        }
-      [_] ->
-        %UA.Browser{
-          family: family_repl,
-          version: version || :unknown
-        }
+      case Regex.run(parser[:regex], ua) do
+        [_, family | ver_parts] ->
+          %UA.Browser{
+            family: family_repl || family,
+            version: version || version_from_parts(ver_parts)
+          }
+        [_] ->
+          %UA.Browser{
+            family: family_repl,
+            version: version || :unknown
+          }
+      end
+    rescue
+      :unknown
     end
   end
 
@@ -81,20 +85,24 @@ defmodule UA.Parser do
 
   defp parse_os(nil, _), do: :unknown
   defp parse_os(parser, ua) do
-    os_repl = parser[:os_replacement]
-    v1_repl = parser[:os_v1_replacement]
-    v2_repl = parser[:os_v2_replacement]
-    v3_repl = parser[:os_v3_replacement]
-    version = [v1_repl, v2_repl, v3_repl] |> Enum.filter(&(&1 != nil)) |> version_from_parts
+    try do
+      os_repl = parser[:os_replacement]
+      v1_repl = parser[:os_v1_replacement]
+      v2_repl = parser[:os_v2_replacement]
+      v3_repl = parser[:os_v3_replacement]
+      version = [v1_repl, v2_repl, v3_repl] |> Enum.filter(&(&1 != nil)) |> version_from_parts
 
-    case Regex.run(parser[:regex], ua) do
-      [_, os | ver_parts] ->
-        %UA.OS{
-          family: os_repl || os,
-          version: version || version_from_parts(ver_parts)
-        }
-      [_] ->
-        %UA.OS{ family: os_repl, version: version || :unknown }
+      case Regex.run(parser[:regex], ua) do
+        [_, os | ver_parts] ->
+          %UA.OS{
+            family: os_repl || os,
+            version: version || version_from_parts(ver_parts)
+          }
+        [_] ->
+          %UA.OS{ family: os_repl, version: version || :unknown }
+      end
+    rescue
+      :unknown
     end
   end
 
@@ -106,17 +114,21 @@ defmodule UA.Parser do
 
   defp parse_device(nil, _), do: :unknown
   defp parse_device(parser, ua) do
-    substitutions = case Regex.run(parser[:regex], ua) do
-      [_, device, brand, model] -> [{"$1", device}, {"$2", brand}, {"$3", model}]
-      [_, device, brand] -> [{"$1", device}, {"$2", brand}]
-      [_, device] -> [{"$1", device}]
-      [_] -> []
+    try do
+      substitutions = case Regex.run(parser[:regex], ua) do
+        [_, device, brand, model] -> [{"$1", device}, {"$2", brand}, {"$3", model}]
+        [_, device, brand] -> [{"$1", device}, {"$2", brand}]
+        [_, device] -> [{"$1", device}]
+        [_] -> []
+      end
+      %UA.Device{
+        name: make_substitutions(parser[:device_replacement], substitutions),
+        brand: make_substitutions(parser[:brand_replacement], substitutions),
+        model: make_substitutions(parser[:model_replacement], substitutions)
+      }
+    rescue
+      :unknown
     end
-    %UA.Device{
-      name: make_substitutions(parser[:device_replacement], substitutions),
-      brand: make_substitutions(parser[:brand_replacement], substitutions),
-      model: make_substitutions(parser[:model_replacement], substitutions)
-    }
   end
 
   defp version_from_parts([]), do: nil
