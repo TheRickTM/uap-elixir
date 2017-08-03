@@ -73,7 +73,7 @@ defmodule UA.Parser do
           }
       end
     rescue
-      :unknown
+      ArgumentError -> :unknown
     end
   end
 
@@ -102,7 +102,7 @@ defmodule UA.Parser do
           %UA.OS{ family: os_repl, version: version || :unknown }
       end
     rescue
-      :unknown
+      ArgumentError -> :unknown
     end
   end
 
@@ -127,7 +127,7 @@ defmodule UA.Parser do
         model: make_substitutions(parser[:model_replacement], substitutions)
       }
     rescue
-      :unknown
+      ArgumentError -> :unknown
     end
   end
 
